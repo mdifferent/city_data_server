@@ -22,4 +22,16 @@ public class CityList {
         CityList newCity = new CityList(value);
         this.children.add(newCity);
     }
+
+    public void appendChild(CityList value) {
+        if (this.children == null)
+            this.children = new LinkedList<>();
+        this.children.add(value);
+    }
+
+    public void appendChild(List<CityList> value) {
+        if (this.children == null)
+            this.children = new LinkedList<>();
+        this.children.addAll(value);
+    }
 }

@@ -1,6 +1,7 @@
 package com.bjucd.mobilesignal.controllers;
 
 import com.bjucd.mobilesignal.models.AccessCityInfo;
+import com.bjucd.mobilesignal.models.base.DistrictCoord;
 import com.bjucd.mobilesignal.models.responseBody.CityCoordWithValue;
 import com.bjucd.mobilesignal.models.responseBody.CityList;
 import com.bjucd.mobilesignal.models.responseBody.NameValue;
@@ -8,10 +9,12 @@ import com.bjucd.mobilesignal.repositoriies.AccessCityInfoRepository;
 import com.bjucd.mobilesignal.repositoriies.ChartInfoRepository;
 import com.bjucd.mobilesignal.repositoriies.MainPageInfoRepository;
 import com.bjucd.mobilesignal.repositoriies.base.CityCoordRepository;
+import com.bjucd.mobilesignal.repositoriies.base.DistrictCoordRepository;
 import com.bjucd.mobilesignal.repositoriies.config.SystemConfigRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -55,6 +58,9 @@ public class IndexController {
     CityCoordRepository cityRepo;
 
     @Autowired
+    DistrictCoordRepository disRepo;
+
+    @Autowired
     AccessCityInfoRepository accessCityRepo;
 
     @Autowired
@@ -80,6 +86,7 @@ public class IndexController {
     }
 
     @RequestMapping("/city")
+    @Transactional
     public List<CityList> getCityList() {
         List<CityList> response = new LinkedList<>();
         if (sysRepo.existsById(1)) {
@@ -102,8 +109,45 @@ public class IndexController {
         return response;
     }
 
+    @RequestMapping("/district")
+    @Transactional
+    public List<CityList> getDistrictList() {
+        List<CityList> response = new LinkedList<>();
+        if (sysRepo.existsById(1)) {
+            String version = sysRepo.findById(1).get().getActiveVersion();
+            List<DistrictCoord> coordList = disRepo.findByVersion(version);
+
+            //Group by province
+            Map<String, List<DistrictCoord>> byProvince = coordList.parallelStream()
+                    .collect(Collectors.groupingByConcurrent(city -> city.getProvince()));
+            //Get city list of each province
+            for (Map.Entry<String, List<DistrictCoord>> province : byProvince.entrySet()) {
+                CityList provinceAndCities = new CityList(province.getKey());
+                List<DistrictCoord> recordOfEachProvince = province.getValue();
+                //Group by city
+                Map<String, List<DistrictCoord>> byCity =
+                        recordOfEachProvince.parallelStream().collect(Collectors.groupingByConcurrent(city
+                                -> city.getCity()));
+                List<CityList> cityList = new LinkedList<>();
+                //Append district list in every city
+                for (Map.Entry<String, List<DistrictCoord>> city: byCity.entrySet()) {
+                    CityList cityAndDistricts = new CityList(city.getKey());
+                    for (DistrictCoord district : city.getValue()) {
+                        cityAndDistricts.appendChild(district.getDistrict());
+                    }
+                    provinceAndCities.appendChild(cityAndDistricts);
+                }
+                response.add(provinceAndCities);
+            }
+        } else {
+            logger.error("Invalid version");
+        }
+        return response;
+    }
+
 
     @RequestMapping("/cityInfo")
+    @Transactional
     public List<CityCoordWithValue> getAccessCityInfo() {
         List<CityCoordWithValue> result = new LinkedList<>();
         if (sysRepo.existsById(1)) {

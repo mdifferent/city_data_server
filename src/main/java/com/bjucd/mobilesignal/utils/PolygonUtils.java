@@ -15,17 +15,14 @@ public class PolygonUtils {
 
     static Logger logger = LoggerFactory.getLogger(PolygonUtils.class);
 
-    public static List<Double[]> polygon2CoordList(String polygon) {
+    public static String polygon2CoordList(String polygon) {
         if (polygon.startsWith("POLYGON")) {
             polygon = polygon.replace("POLYGON", "")
                     .replace("((", "")
                     .replace("))", "").trim();
-            String[] polygonPairs = polygon.split(", ");
-            List<Double[]> result = Arrays.stream(polygonPairs).map(pair -> pair.split(" "))
-                    .map(strPair -> new Double[]{Double.parseDouble(strPair[0]), Double.parseDouble(strPair[1])}
-                    )
-                    .collect(Collectors.toList());
-            return result;
+            polygon = polygon.replace(", ", ",").replace(",", ";").replace(" ", ",");
+
+            return polygon;
         }
         return null;
     }

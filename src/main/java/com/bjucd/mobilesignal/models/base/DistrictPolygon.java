@@ -31,6 +31,9 @@ public class DistrictPolygon {
     @Column(name="wkt", columnDefinition = "text")
     private String wkt;
 
+    @Column(name="polygon", columnDefinition = "text")
+    private String polygon;
+
     @Column(name="version")
     @JsonIgnore
     private String version;

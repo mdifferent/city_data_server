@@ -52,4 +52,17 @@ public class DistrictOD {
 
     @Column(name="VERSION")
     private String version;
+
+    public DistrictOD(String originDistrict, Double cuod, Double kyod) {
+        this.originDistrict = originDistrict;
+        this.cuod = cuod;
+        this.kyod = kyod;
+    }
+
+    public DistrictOD(String originDistrict, String destinationDistrict, Double cuod, Double kyod) {
+        this.originDistrict = originDistrict;
+        this.destinationDistrict = destinationDistrict;
+        this.cuod = cuod;
+        this.kyod = kyod;
+    }
 }
