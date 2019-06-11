@@ -12,9 +12,8 @@ import lombok.Data;
 @Builder
 public class LinesData {
 
-    private Double[] oCoord;
-    private Double[] dCoord;
-    private String oName;
-    private String dName;
+    private String fromName;
+    private String toName;
+    private Double[][] coords;
     private Double value;
 }

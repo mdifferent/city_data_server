@@ -51,4 +51,11 @@ public class GridOD {
     @Column(name="VERSION")
     private String version;
 
+    public GridOD(String originGrid, String destinationGrid, Double cuod, Double kyod) {
+        this.originGrid = originGrid;
+        this.destinationGrid = destinationGrid;
+        this.cuod = cuod;
+        this.kyod = kyod;
+    }
+
 }

@@ -11,14 +11,12 @@ import com.bjucd.mobilesignal.repositoriies.MainPageInfoRepository;
 import com.bjucd.mobilesignal.repositoriies.base.CityCoordRepository;
 import com.bjucd.mobilesignal.repositoriies.base.DistrictCoordRepository;
 import com.bjucd.mobilesignal.repositoriies.config.SystemConfigRepository;
+import com.bjucd.mobilesignal.utils.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.bjucd.mobilesignal.models.MainPageInfo;
 import com.bjucd.mobilesignal.models.ChartInfo;
@@ -46,9 +44,6 @@ public class IndexController {
     Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    SystemConfigRepository sysRepo;
-
-    @Autowired
     MainPageInfoRepository mainPageRepo;
 
     @Autowired
@@ -66,45 +61,40 @@ public class IndexController {
     @Autowired
     EntityManagerFactory factory;
 
+    @Autowired
+    SystemUtils systemUtil;
+
     @RequestMapping("/")
     public MainPageInfo getMainPageInfo() {
-        if (sysRepo.existsById(1)) {
-            String version = sysRepo.findById(1).get().getActiveVersion();
-            return mainPageRepo.findOneByVersion(version);
-        }
-        return null;
+        String version = systemUtil.getActiveVersion();
+        return mainPageRepo.findOneByVersion(version);
     }
 
     @RequestMapping("/chart")
     public List<ChartInfo> getMainPageChart(@RequestParam("city") String city,
                                             @RequestParam("chart") String chart) {
-        if (sysRepo.existsById(1)) {
-            String version = sysRepo.findById(1).get().getActiveVersion();
-            return chartRepo.findByCityAndTableNameAndVersion(city, chart, version);
-        }
-        return null;
+        String version = systemUtil.getActiveVersion();
+        return chartRepo.findByCityAndTableNameAndVersion(city, chart, version);
     }
 
     @RequestMapping("/city")
     @Transactional
     public List<CityList> getCityList() {
         List<CityList> response = new LinkedList<>();
-        if (sysRepo.existsById(1)) {
-            String version = sysRepo.findById(1).get().getActiveVersion();
-            logger.info("{}", version);
-            List<CityCoord> citys = cityRepo.findByVersion(version);
-            logger.info("{}", citys.size());
-            Map<String, List<CityCoord>> citiesInProvince = citys.parallelStream()
-                    .collect(Collectors.groupingBy(city -> city.getProvince()));
-            logger.info("{}", citiesInProvince.size());
-            for (Map.Entry<String, List<CityCoord>> province: citiesInProvince.entrySet()) {
-                CityList cityList = new CityList(province.getKey());
-                logger.info(province.getKey());
-                for (CityCoord city : province.getValue()) {
-                    cityList.appendChild(city.getCity());
-                }
-                response.add(cityList);
+        String version = systemUtil.getActiveVersion();
+        logger.info("{}", version);
+        List<CityCoord> citys = cityRepo.findByVersion(version);
+        logger.info("{}", citys.size());
+        Map<String, List<CityCoord>> citiesInProvince = citys.parallelStream()
+                .collect(Collectors.groupingBy(city -> city.getProvince()));
+        logger.info("{}", citiesInProvince.size());
+        for (Map.Entry<String, List<CityCoord>> province : citiesInProvince.entrySet()) {
+            CityList cityList = new CityList(province.getKey());
+            logger.info(province.getKey());
+            for (CityCoord city : province.getValue()) {
+                cityList.appendChild(city.getCity());
             }
+            response.add(cityList);
         }
         return response;
     }
@@ -113,34 +103,30 @@ public class IndexController {
     @Transactional
     public List<CityList> getDistrictList() {
         List<CityList> response = new LinkedList<>();
-        if (sysRepo.existsById(1)) {
-            String version = sysRepo.findById(1).get().getActiveVersion();
-            List<DistrictCoord> coordList = disRepo.findByVersion(version);
+        String version = systemUtil.getActiveVersion();
+        List<DistrictCoord> coordList = disRepo.findByVersion(version);
 
-            //Group by province
-            Map<String, List<DistrictCoord>> byProvince = coordList.parallelStream()
-                    .collect(Collectors.groupingByConcurrent(city -> city.getProvince()));
-            //Get city list of each province
-            for (Map.Entry<String, List<DistrictCoord>> province : byProvince.entrySet()) {
-                CityList provinceAndCities = new CityList(province.getKey());
-                List<DistrictCoord> recordOfEachProvince = province.getValue();
-                //Group by city
-                Map<String, List<DistrictCoord>> byCity =
-                        recordOfEachProvince.parallelStream().collect(Collectors.groupingByConcurrent(city
-                                -> city.getCity()));
-                List<CityList> cityList = new LinkedList<>();
-                //Append district list in every city
-                for (Map.Entry<String, List<DistrictCoord>> city: byCity.entrySet()) {
-                    CityList cityAndDistricts = new CityList(city.getKey());
-                    for (DistrictCoord district : city.getValue()) {
-                        cityAndDistricts.appendChild(district.getDistrict());
-                    }
-                    provinceAndCities.appendChild(cityAndDistricts);
+        //Group by province
+        Map<String, List<DistrictCoord>> byProvince = coordList.parallelStream()
+                .collect(Collectors.groupingByConcurrent(city -> city.getProvince()));
+        //Get city list of each province
+        for (Map.Entry<String, List<DistrictCoord>> province : byProvince.entrySet()) {
+            CityList provinceAndCities = new CityList(province.getKey());
+            List<DistrictCoord> recordOfEachProvince = province.getValue();
+            //Group by city
+            Map<String, List<DistrictCoord>> byCity =
+                    recordOfEachProvince.parallelStream().collect(Collectors.groupingByConcurrent(city
+                            -> city.getCity()));
+            List<CityList> cityList = new LinkedList<>();
+            //Append district list in every city
+            for (Map.Entry<String, List<DistrictCoord>> city : byCity.entrySet()) {
+                CityList cityAndDistricts = new CityList(city.getKey());
+                for (DistrictCoord district : city.getValue()) {
+                    cityAndDistricts.appendChild(district.getDistrict());
                 }
-                response.add(provinceAndCities);
+                provinceAndCities.appendChild(cityAndDistricts);
             }
-        } else {
-            logger.error("Invalid version");
+            response.add(provinceAndCities);
         }
         return response;
     }
@@ -150,43 +136,39 @@ public class IndexController {
     @Transactional
     public List<CityCoordWithValue> getAccessCityInfo() {
         List<CityCoordWithValue> result = new LinkedList<>();
-        if (sysRepo.existsById(1)) {
-            String version = sysRepo.findById(1).get().getActiveVersion();
-            List<AccessCityInfo> accessCityInfos = accessCityRepo.findByVersion(version);
-            List<String> cities = accessCityInfos.stream().map(info -> info.getCity()).collect(Collectors.toList());
-            List<CityCoord> coords = cityRepo.findByVersionAndCityIn(version, cities);
-            coords.parallelStream().map(coord -> new CityCoordWithValue(coord))
-                    .forEach( coord -> {
-                        Integer value = accessCityInfos.stream().filter(info -> info.getCity().equals(coord.getName())).findFirst().get().getCuUserCount();
-                        coord.setValue(value);
-                        result.add(coord);
-                    });
-        }
+        String version = systemUtil.getActiveVersion();
+        List<AccessCityInfo> accessCityInfos = accessCityRepo.findByVersion(version);
+        List<String> cities = accessCityInfos.stream().map(info -> info.getCity()).collect(Collectors.toList());
+        List<CityCoord> coords = cityRepo.findByVersionAndCityIn(version, cities);
+        coords.parallelStream().map(coord -> new CityCoordWithValue(coord))
+                .forEach(coord -> {
+                    Integer value = accessCityInfos.stream().filter(info -> info.getCity().equals(coord.getName())).findFirst().get().getCuUserCount();
+                    coord.setValue(value);
+                    result.add(coord);
+                });
         return result;
     }
 
-    @RequestMapping("/gender")
-    public List<NameValue<Double>> getGenderData(@RequestParam("city") String city) {
-        List<NameValue<Double>> result = new LinkedList<>();
-        if (sysRepo.existsById(1)) {
-            String version = sysRepo.findById(1).get().getActiveVersion();
-            List<ChartInfo> chartInfos = chartRepo.findByCityAndTableNameAndVersion(city, "性别", version);
-            result = chartInfos.stream().map(info -> new NameValue<Double>(info.getXIndex(), info.getYValue())).collect(Collectors.toList());
+    @RequestMapping("/chart/{name}")
+    public List<NameValue<Double>> getChartData(@RequestParam("city") String city, @PathVariable("name") String name) {
+        logger.info(name);
+        String tableName = null;
+        switch (name) {
+            case "gender":
+                tableName = "性别";  break;
+            case "age":
+                tableName = "年龄"; break;
+            case "time":
+                tableName = "出行时间"; break;
+            case "distance":
+                tableName = "出行距离"; break;
+            case "consume":
+                tableName = "出行时耗"; break;
         }
+        String version = systemUtil.getActiveVersion();
+        List<ChartInfo> chartInfos = chartRepo.findByCityAndTableNameAndVersion(city, tableName, version);
+        List<NameValue<Double>> result = chartInfos.stream().map(info -> new NameValue<Double>(info.getXIndex(), info.getYValue())).collect(Collectors.toList());
         return result;
     }
-
-    @RequestMapping("/age")
-    public List<NameValue<Double>> getAgeData(@RequestParam("city") String city) {
-        List<NameValue<Double>> result = new LinkedList<>();
-        if (sysRepo.existsById(1)) {
-            String version = sysRepo.findById(1).get().getActiveVersion();
-            List<ChartInfo> chartInfos = chartRepo.findByCityAndTableNameAndVersion(city, "年龄", version);
-            result = chartInfos.stream().map(info -> new NameValue<Double>(info.getXIndex(), info.getYValue())).collect(Collectors.toList());
-        }
-        return result;
-    }
-
-
 
 }

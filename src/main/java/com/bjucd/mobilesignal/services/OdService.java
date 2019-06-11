@@ -108,8 +108,10 @@ public class OdService {
         return ods.stream().map(od -> {
             String oName = od.getOriginDistrict();
             String dName = od.getDestinationDistrict();
-            return LinesData.builder().dName(dName).dCoord(coordMap.get(dName))
-                    .oName(oName).oCoord(coordMap.get(oName))
+            Double[] dCoord = coordMap.get(dName);
+            Double[] oCoord = coordMap.get(oName);
+            return LinesData.builder().fromName(oName).toName(dName)
+                    .coords(new Double[][] {oCoord, dCoord})
                     .value(isCu ? od.getCuod() : od.getKyod()).build();
         }).collect(Collectors.toList());
     }
@@ -140,25 +142,32 @@ public class OdService {
         return result;
     }
 
-    public List<LinesData> getGridData(String city, String date, String version, boolean isCu) {
-        List<GridOD> datas = gridRepo.findByCityAndDateTypeAndVersion(city, date, version);
-        return datas.parallelStream().map(data ->
-                new LinesData(parseCoord(data.getOriginGrid()), parseCoord(data.getDestinationGrid()),
-                    null, null, isCu ? data.getCuod() : data.getKyod())).collect(Collectors.toList());
+    public List<LinesData> getGridData(String city, String date, String version, List<Integer[]> times, boolean isCu) {
+        EntityManager em = factory.createEntityManager();
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<GridOD> cq = cb.createQuery(GridOD.class);
+        Root<GridOD> root = cq.from(GridOD.class);
+        cq.multiselect(root.get("originGrid"), root.get("destinationGrid"), cb.sumAsDouble(root.get("cuod")), cb.sumAsDouble(root.get("kyod")));
+        cq.groupBy(root.get("originGrid"), root.get("destinationGrid"));
+        cq.where(cb.equal(root.get("city"),city),
+                cb.equal(root.get("dateType"), date),
+                cb.equal(root.get("version"), version),
+                cb.notEqual(root.get("originGrid"), root.get("destinationGrid")),
+                timeUtil.createWhereCondition(cb, root, times, new String[] {"timeHour", "timeMinute"})
+        );
+        List<GridOD> ods = em.createQuery(cq).getResultList();
+        em.close();
+
+        return ods.parallelStream().map(data -> LinesData.builder().fromName(data.getOriginGrid()).toName(data.getDestinationGrid())
+                .coords(new Double[][] {parseCoord(data.getOriginGrid()), parseCoord(data.getDestinationGrid())})
+                .value(isCu ? data.getCuod() : data.getKyod()).build()).collect(Collectors.toList());
     }
 
     private Double[] parseCoord(String coordStr) {
         String[] coordStrs = coordStr.split("_");
-        String lngStr = coordStrs[0];
-        StringBuilder sb = new StringBuilder(lngStr);
-        lngStr = sb.insert(3, '.').toString();
-        Double lng = Double.parseDouble(lngStr);
-
-        String latStr = coordStrs[1];
-        sb = new StringBuilder(latStr);
-        latStr = sb.insert(2, '.').toString();
-        Double lat = Double.parseDouble(latStr);
-
-        return new Double[] {lng, lat};
+        return new Double[] {
+                Double.parseDouble(coordStrs[0]) / 1000.0,
+                Double.parseDouble(coordStrs[1]) / 1000.0,
+        };
     }
 }

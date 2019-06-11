@@ -115,11 +115,18 @@ public class ODControllers {
     @RequestMapping("/grid")
     public List<LinesData> getGrid(@RequestParam("city") String city,
                         @RequestParam("date") String date,
+                                   @RequestParam("time") String time,
                         @RequestParam("cuky") String cuky) {
         if (sysRepo.existsById(1)) {
             String version = sysRepo.findById(1).get().getActiveVersion();
             boolean isCu = cuky.equalsIgnoreCase("cu");
-            return odSvc.getGridData(city, date, version, isCu);
+            CityConfig cityConfig = cityConfigRepo.findOneByCity(city);
+            if (cityConfig == null) {
+                logger.error("未找到当前城市配置信息");
+                return new LinkedList<>();
+            }
+            List<Integer[]> times = TimeRangeUtils.getTimePairs(cityConfig, time);
+            return odSvc.getGridData(city, date, version, times, isCu);
         }
         return new LinkedList<>();
     }

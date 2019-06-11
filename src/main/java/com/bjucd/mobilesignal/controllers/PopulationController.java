@@ -6,10 +6,7 @@ import com.bjucd.mobilesignal.repositoriies.population.DynamicPopulationReposito
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -47,5 +44,16 @@ public class PopulationController {
                             isCu ? data1.getCuPop() : data1.getKyPop()}).collect(Collectors.toList());
         }
         return result;
+    }
+
+    @RequestMapping("/density")
+    public void getPopulationDensityData(@RequestParam(name = "city") String city) {
+
+    }
+
+    @RequestMapping("/{type}")
+    public void getPopulationOfCity(@RequestParam(name = "city") String city,
+                                    @PathVariable("type") String type) {
+
     }
 }
