@@ -167,7 +167,7 @@ public class OdService {
                 .value(isCu ? data.getCuod() : data.getKyod()).build()).collect(Collectors.toList());
         stopWatch.stop();
         logger.info("{}", stopWatch.prettyPrint());
-        return dataList.subList(0,10000);
+        return dataList;
     }
 
     private Double[] parseCoord(String coordStr) {
