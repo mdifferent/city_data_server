@@ -14,12 +14,14 @@ public class SystemUtils {
     @Autowired
     SystemConfigRepository sysRepo;
 
-    private static String version;
+    private static String version = "";
 
     public String getActiveVersion() {
         if (StringUtils.isBlank(version)) {
-            if (sysRepo.existsById(1)) {
-                version = sysRepo.findById(1).get().getActiveVersion();
+            synchronized (version) {
+                if (sysRepo.existsById(1)) {
+                    version = sysRepo.findById(1).get().getActiveVersion();
+                }
             }
         }
         return version;

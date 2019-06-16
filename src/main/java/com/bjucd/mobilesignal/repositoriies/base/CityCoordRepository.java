@@ -11,4 +11,5 @@ import java.util.List;
 public interface CityCoordRepository extends JpaRepository<CityCoord, Integer> {
     List<CityCoord> findByVersionAndCityIn(String version, List<String> cities);
     List<CityCoord> findByVersion(String version);
+    CityCoord findOneByCityAndVersion(String city, String version);
 }

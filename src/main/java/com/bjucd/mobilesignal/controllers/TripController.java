@@ -37,36 +37,35 @@ public class TripController {
 
     @RequestMapping("/cu")
     @Transactional
-    public Map<String, Integer> getCuValues(@RequestParam(name = "city") String city,
+    public List<NameValue<Integer>> getCuValues(@RequestParam(name = "city") String city,
                                            @RequestParam(name = "date") String date,
                                            @RequestParam(name = "time") String time,
                                            @RequestParam(name = "od") String od) {
-        Map<String, Integer> result = new HashMap<>();
         if (sysRepo.existsById(1)) {
             String version = sysRepo.findById(1).get().getActiveVersion();
             List<Trips> trips = tripSvc.getTrips(city, version, date, time);
-            for (Trips trip: trips) {
-                result.put(trip.getDistrict(), od.equals("o") ? trip.getCu_o() : trip.getCu_d());
-            }
+            return trips.parallelStream().map(trip ->
+                    new NameValue<Integer>(trip.getDistrict(), od.equals("o") ? trip.getCu_o() : trip.getCu_d()))
+                    .collect(Collectors.toList());
+
         }
-        return result;
+        return new LinkedList<>();
     }
 
     @RequestMapping("/ky")
     @Transactional
-    public Map<String, Integer> getKyValues(@RequestParam(name = "city") String city,
+    public List<NameValue<Integer>> getKyValues(@RequestParam(name = "city") String city,
                                                 @RequestParam(name = "date") String date,
                                                 @RequestParam(name = "time") String time,
                                                 @RequestParam(name = "od") String od) {
-        Map<String, Integer> result = new HashMap<>();
         if (sysRepo.existsById(1)) {
             String version = sysRepo.findById(1).get().getActiveVersion();
             List<Trips> trips = tripSvc.getTrips(city, version, date, time);
-            for (Trips trip: trips) {
-                result.put(trip.getDistrict(), od.equals("o") ? trip.getKy_o() : trip.getKy_d());
-            }
+            return trips.parallelStream().map(trip ->
+                    new NameValue<Integer>(trip.getDistrict(), od.equals("o") ? trip.getCu_o() : trip.getCu_d()))
+                    .collect(Collectors.toList());
         }
-        return result;
+        return new LinkedList<>();
     }
 
     @RequestMapping("/avg")

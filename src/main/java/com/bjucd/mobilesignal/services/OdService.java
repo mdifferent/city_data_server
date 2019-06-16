@@ -5,7 +5,6 @@ import com.bjucd.mobilesignal.models.od.DistrictOD;
 import com.bjucd.mobilesignal.models.od.GridOD;
 import com.bjucd.mobilesignal.models.responseBody.LinesData;
 import com.bjucd.mobilesignal.models.responseBody.NameValue;
-import com.bjucd.mobilesignal.models.trip.Trips;
 import com.bjucd.mobilesignal.repositoriies.base.DistrictCoordRepository;
 import com.bjucd.mobilesignal.repositoriies.od.DistrictOdRepository;
 import com.bjucd.mobilesignal.repositoriies.od.GridOdRepository;
@@ -14,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
+import org.springframework.util.StopWatch;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -143,6 +142,8 @@ public class OdService {
     }
 
     public List<LinesData> getGridData(String city, String date, String version, List<Integer[]> times, boolean isCu) {
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start("Database query");
         EntityManager em = factory.createEntityManager();
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<GridOD> cq = cb.createQuery(GridOD.class);
@@ -157,10 +158,16 @@ public class OdService {
         );
         List<GridOD> ods = em.createQuery(cq).getResultList();
         em.close();
+        stopWatch.stop();
 
-        return ods.parallelStream().map(data -> LinesData.builder().fromName(data.getOriginGrid()).toName(data.getDestinationGrid())
+        stopWatch.start("Parse coord");
+        List<LinesData>  dataList = ods.parallelStream().map(data -> LinesData.builder()
+                .fromName(data.getOriginGrid()).toName(data.getDestinationGrid())
                 .coords(new Double[][] {parseCoord(data.getOriginGrid()), parseCoord(data.getDestinationGrid())})
                 .value(isCu ? data.getCuod() : data.getKyod()).build()).collect(Collectors.toList());
+        stopWatch.stop();
+        logger.info("{}", stopWatch.prettyPrint());
+        return dataList.subList(0,10000);
     }
 
     private Double[] parseCoord(String coordStr) {
