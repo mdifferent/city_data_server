@@ -13,7 +13,7 @@ import javax.persistence.*;
 @Data
 @Entity
 @NoArgsConstructor
-@Table(schema = "public", name = "CX_TJ_OD")
+@Table(name = "CX_TJ_OD")
 @SequenceGenerator(name="cx_tj_od_seq")
 @Cacheable(false)
 public class DistrictOD {

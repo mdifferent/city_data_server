@@ -11,11 +11,11 @@ import java.util.List;
  */
 public interface DistrictOdRepository extends JpaRepository<DistrictOD, String> {
 
-    @Query(value = "SELECT * from public.CX_TJ_OD WHERE city = ?1 AND date_type = ?2 AND version = ?3 " +
+    @Query(value = "SELECT * from CX_TJ_OD WHERE city = ?1 AND date_type = ?2 AND version = ?3 " +
             "AND O_DISTRICT != D_DISTRICT ORDER BY CU_OD DESC LIMIT 10", nativeQuery = true)
     List<DistrictOD> findTop10CuInterDistrictOd(String city, String DateType, String Version);
 
-    @Query(value = "SELECT * from public.CX_TJ_OD WHERE city = ?1 AND date_type = ?2 AND version = ?3 " +
+    @Query(value = "SELECT * from CX_TJ_OD WHERE city = ?1 AND date_type = ?2 AND version = ?3 " +
                   "AND O_DISTRICT != D_DISTRICT ORDER BY KY_OD DESC LIMIT 10", nativeQuery = true)
     List<DistrictOD> findTop10KyInterDistrictOd(String city, String DateType, String Version);
 }

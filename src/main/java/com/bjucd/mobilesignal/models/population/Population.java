@@ -7,7 +7,7 @@ import javax.persistence.*;
 
 @Entity
 @Data
-@Table(schema = "public", name="ZZ_TJ_POPULATION")
+@Table(name="ZZ_TJ_POPULATION")
 @Cacheable(false)
 @SequenceGenerator(name="population_seq")
 public class Population {

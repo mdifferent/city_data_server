@@ -7,7 +7,7 @@ import javax.persistence.*;
 
 @Entity
 @Data
-@Table(schema = "public", name="SY_ACCESS_CITY")
+@Table(name="SY_ACCESS_CITY")
 @Cacheable(false)
 @SequenceGenerator(name="sy_access_city_seq")
 public class AccessCityInfo {

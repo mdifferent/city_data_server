@@ -7,7 +7,7 @@ import java.sql.Clob;
 
 @Entity
 @Data
-@Table(schema = "public", name="JC_PROVINCE")
+@Table(name="JC_PROVINCE")
 @Cacheable(false)
 public class ProvinceCoord {
 

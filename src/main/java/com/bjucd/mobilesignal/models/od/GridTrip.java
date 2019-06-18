@@ -13,7 +13,7 @@ import javax.persistence.*;
 @Data
 @Entity
 @NoArgsConstructor
-@Table(schema = "public", name = "CX_WG_TRIPS")
+@Table(name = "CX_WG_TRIPS")
 @SequenceGenerator(name="cx_wg_trips_seq")
 @Cacheable(false)
 public class GridTrip {

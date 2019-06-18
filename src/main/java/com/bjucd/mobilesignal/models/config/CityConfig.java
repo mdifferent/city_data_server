@@ -10,7 +10,7 @@ import javax.persistence.*;
  */
 @Entity
 @Data
-@Table(schema = "public", name="city_config")
+@Table(name="city_config")
 @SequenceGenerator(name="city_config_seq")
 @Cacheable(false)
 public class CityConfig {

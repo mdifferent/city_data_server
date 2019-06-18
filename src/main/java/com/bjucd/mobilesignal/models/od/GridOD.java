@@ -13,7 +13,7 @@ import javax.persistence.*;
 @Data
 @Entity
 @NoArgsConstructor
-@Table(schema = "public", name = "CX_WG_OD")
+@Table(name = "CX_WG_OD")
 @SequenceGenerator(name="cx_wg_od_seq")
 @Cacheable(false)
 public class GridOD {

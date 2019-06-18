@@ -10,7 +10,7 @@ import javax.persistence.*;
  */
 @Entity
 @Data
-@Table(schema = "public", name="ZZ_WG_DYNAMIC_POPULATION")
+@Table(name="ZZ_WG_DYNAMIC_POPULATION")
 @Cacheable(false)
 @SequenceGenerator(name="dynamic_population_seq")
 public class DynamicPopulation {

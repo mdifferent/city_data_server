@@ -7,7 +7,7 @@ import javax.persistence.*;
 
 @Entity
 @Data
-@Table(schema = "public", name="SY_INDEX")
+@Table(name="SY_INDEX")
 @Cacheable(false)
 @SequenceGenerator(name="sy_index_seq")
 public class MainPageInfo {

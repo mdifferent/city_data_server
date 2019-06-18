@@ -12,7 +12,7 @@ import javax.persistence.*;
 @Data
 @Entity
 @NoArgsConstructor
-@Table(schema = "public", name = "CX_TJ_TRIPS")
+@Table(name = "CX_TJ_TRIPS")
 @SequenceGenerator(name = "cx_tj_trips_seq")
 @Cacheable(false)
 public class Trips {

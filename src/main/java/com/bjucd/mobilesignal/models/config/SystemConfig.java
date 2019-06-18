@@ -9,7 +9,7 @@ import javax.persistence.*;
  */
 @Entity
 @Data
-@Table(schema = "public", name="SYSTEM_CONFIG")
+@Table(name="SYSTEM_CONFIG")
 @Cacheable(false)
 public class SystemConfig {
 

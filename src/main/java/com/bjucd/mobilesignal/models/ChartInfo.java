@@ -7,7 +7,7 @@ import javax.persistence.*;
 
 @Entity
 @Data
-@Table(schema = "public", name="SY_TABLE")
+@Table(name="SY_TABLE")
 @Cacheable(false)
 @SequenceGenerator(name="sy_table_seq")
 public class ChartInfo {

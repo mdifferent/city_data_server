@@ -10,7 +10,7 @@ import javax.persistence.*;
  */
 @Entity
 @Data
-@Table(schema = "public", name="JC_PROVINCE_POLYGON")
+@Table(name="JC_PROVINCE_POLYGON")
 @Cacheable(false)
 public class ProvincePolygon {
 

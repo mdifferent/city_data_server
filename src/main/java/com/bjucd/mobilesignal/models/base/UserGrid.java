@@ -11,7 +11,7 @@ import javax.persistence.*;
  */
 @Entity
 @Data
-@Table(schema = "public", name = "JC_USER_ZONE")
+@Table(name = "JC_USER_ZONE")
 @Cacheable(false)
 @SequenceGenerator(name="jc_user_zone_seq")
 public class UserGrid {

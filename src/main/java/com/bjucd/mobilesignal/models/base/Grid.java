@@ -10,7 +10,7 @@ import javax.persistence.*;
  */
 @Entity
 @Data
-@Table(schema = "public", name = "JC_GRID")
+@Table(name = "JC_GRID")
 @Cacheable(false)
 @SequenceGenerator(name="jc_grid_seq")
 public class Grid {
