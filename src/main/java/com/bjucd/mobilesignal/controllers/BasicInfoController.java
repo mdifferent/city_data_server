@@ -44,7 +44,7 @@ public class BasicInfoController {
     @Autowired
     DistrictPolygonRepository districtPolygonRepo;
 
-    @RequestMapping("/cityCoords")
+    @RequestMapping("/api/cityCoords")
     public List<CityCoord> getCityCoords(@RequestParam(name = "city", required = false) String cities) {
 
         List<CityCoord> result = new LinkedList<>();

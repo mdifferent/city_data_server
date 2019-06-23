@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
  * Created by I015703 on 6/3/2019.
  */
 @RestController
-@RequestMapping("/pop")
+@RequestMapping("/api/pop")
 @CrossOrigin
 public class PopulationController {
 

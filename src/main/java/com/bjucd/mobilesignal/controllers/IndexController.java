@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
  * Created by I015703 on 5/28/2019.
  */
 @RestController
-@RequestMapping("/index")
+@RequestMapping("/api/index")
 @CrossOrigin
 public class IndexController {
 

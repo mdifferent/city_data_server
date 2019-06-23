@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  * Created by I015703 on 5/31/2019.
  */
 @RestController
-@RequestMapping("/trip")
+@RequestMapping("/api/trip")
 @CrossOrigin
 public class TripController {
 

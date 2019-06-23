@@ -35,8 +35,9 @@ public class GridService {
     }
 
 
-    public List<Grid> getGrids(String city, String district) {
-        return gridRepo.findByCityAndDistrict(city, district);
+    public List<Double[]> getGrids(String city, String district) {
+        List<Grid> grids = gridRepo.findByCityAndDistrict(city, district);
+        return grids.stream().map(g -> new Double[]{g.getLng(), g.getLat()}).collect(Collectors.toList());
     }
 
     public Set<String> getUserRegionList(String city) {
@@ -45,7 +46,8 @@ public class GridService {
         return districtNames;
     }
 
-    public List<UserGrid> getUserGrids(String city, String name) {
-        return userGridRepo.findByCityAndUdZoneName(city, name);
+    public List<Double[]> getUserGrids(String city, String name) {
+        List<UserGrid> grids = userGridRepo.findByCityAndUdZoneName(city, name);
+        return grids.stream().map(g -> new Double[]{g.getLng(), g.getLat()}).collect(Collectors.toList());
     }
 }

@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
  * Created by I015703 on 5/27/2019.
  */
 @RestController
-@RequestMapping("/od")
+@RequestMapping("/api/od")
 @CrossOrigin
 public class ODControllers {
 
