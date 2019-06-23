@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
  * Created by I015703 on 5/28/2019.
  */
 @RestController
-@RequestMapping("/basic")
+@RequestMapping("/api/basic")
 @CrossOrigin
 public class BasicInfoController {
 
@@ -44,7 +44,7 @@ public class BasicInfoController {
     @Autowired
     DistrictPolygonRepository districtPolygonRepo;
 
-    @RequestMapping("/api/cityCoords")
+    @RequestMapping("/cityCoords")
     public List<CityCoord> getCityCoords(@RequestParam(name = "city", required = false) String cities) {
 
         List<CityCoord> result = new LinkedList<>();
