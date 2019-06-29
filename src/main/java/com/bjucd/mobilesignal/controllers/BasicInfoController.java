@@ -58,10 +58,13 @@ public class BasicInfoController {
     }
 
     @RequestMapping("/districtCoords")
-    public List<NameValue<Double[]>> getDistrictCoords(@RequestParam(name = "city") String city) {
+    public List<NameValue<Double[]>> getDistrictCoords(@RequestParam(name = "city") String city,
+                                                       @RequestParam(name = "districts", required = false) String districts) {
         if (sysRepo.existsById(1)) {
             String version = sysRepo.findById(1).get().getActiveVersion();
-            List<DistrictCoord> coords = districtCoordRepo.findByVersionAndCity(version, city);
+            List<DistrictCoord> coords = StringUtils.isNotBlank(districts) ?
+                    districtCoordRepo.findByVersionAndCityAndDistrictIn(version, city, Arrays.asList(districts.split(","))) :
+                    districtCoordRepo.findByVersionAndCity(version, city);
             return coords.parallelStream().map(coord ->
                     new NameValue<Double[]>(coord.getDistrict(), new Double[]{coord.getLng(), coord.getLat()})).collect(Collectors.toList());
         }
@@ -76,7 +79,8 @@ public class BasicInfoController {
         if (sysRepo.existsById(1)) {
             String version = sysRepo.findById(1).get().getActiveVersion();
             List<DistrictPolygon> polygons = districtPolygonRepo.findByProvinceAndCityAndVersion(province, city, version);
-            for (DistrictPolygon polygon: polygons) {
+            for (DistrictPolygon polygon: polygons)
+            {
                 String polygonStr = polygon.getPolygon();
                 if (StringUtils.isBlank(polygonStr)) {
                     polygonStr = PolygonUtils.polygon2CoordList(polygon.getWkt());
