@@ -84,7 +84,7 @@ public class GridService {
         return result;
     }
 
-    public Set<String> getUserRegionList(String city) {
+    public Set<String> getHotRegionList(String city) {
         List<UserGrid> grids = userGridRepo.findByCity(city);
         Set<String> districtNames = grids.parallelStream().map(grid -> grid.getUdZoneName()).collect(Collectors.toSet());
         return districtNames;
@@ -257,5 +257,9 @@ public class GridService {
         Map<Integer, Double> result = new HashMap<>();
         resultList.stream().forEach(r -> result.put(r.getGender(), isCu ? r.getCuPop() : r.getKyPop()));
         return result;
+    }
+
+    public void getGridOds(String city, String region, boolean isCu, String od) {
+
     }
 }

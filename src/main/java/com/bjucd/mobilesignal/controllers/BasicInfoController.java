@@ -3,10 +3,13 @@ package com.bjucd.mobilesignal.controllers;
 import com.bjucd.mobilesignal.models.base.CityCoord;
 import com.bjucd.mobilesignal.models.base.DistrictCoord;
 import com.bjucd.mobilesignal.models.base.DistrictPolygon;
+import com.bjucd.mobilesignal.models.base.Grid;
+import com.bjucd.mobilesignal.models.responseBody.GridPopulationResponse;
 import com.bjucd.mobilesignal.models.responseBody.NameValue;
 import com.bjucd.mobilesignal.repositoriies.base.CityCoordRepository;
 import com.bjucd.mobilesignal.repositoriies.base.DistrictCoordRepository;
 import com.bjucd.mobilesignal.repositoriies.base.DistrictPolygonRepository;
+import com.bjucd.mobilesignal.repositoriies.base.GridRepository;
 import com.bjucd.mobilesignal.repositoriies.config.SystemConfigRepository;
 import com.bjucd.mobilesignal.utils.PolygonUtils;
 import io.micrometer.core.instrument.util.StringUtils;
@@ -43,6 +46,9 @@ public class BasicInfoController {
 
     @Autowired
     DistrictPolygonRepository districtPolygonRepo;
+
+    @Autowired
+    GridRepository gridRepo;
 
     @RequestMapping("/cityCoords")
     public List<CityCoord> getCityCoords(@RequestParam(name = "city", required = false) String cities) {
@@ -91,5 +97,14 @@ public class BasicInfoController {
             }
         }
         return result;
+    }
+
+    @RequestMapping("/cityGrids")
+    public List<GridPopulationResponse> getCityGrids(@RequestParam(name = "city") String city) {
+        List<Grid> grids = gridRepo.findByCity(city);
+        return grids.parallelStream().map(g -> GridPopulationResponse.builder()
+                        .gridId(g.getGridId())
+                        .coords(new Double[]{g.getLng(), g.getLat()})
+                        .populations(new Double[]{0.0}).build()).collect(Collectors.toList());
     }
 }

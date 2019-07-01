@@ -1,13 +1,10 @@
 package com.bjucd.mobilesignal.controllers;
 
 import com.bjucd.mobilesignal.models.responseBody.GridPopulationResponse;
-import com.bjucd.mobilesignal.repositoriies.config.SystemConfigRepository;
 import com.bjucd.mobilesignal.services.GridService;
-import org.omg.CORBA.PUBLIC_MEMBER;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -31,7 +28,7 @@ public class RegionController {
         if (type.equalsIgnoreCase("district"))
             return gridSvc.getDistrictList(city);
         else if (type.equalsIgnoreCase("hot"))
-            return gridSvc.getUserRegionList(city);
+            return gridSvc.getHotRegionList(city);
         return new HashSet<>();
     }
 
@@ -72,6 +69,15 @@ public class RegionController {
         else if (type.equalsIgnoreCase("hot"))
             return gridSvc.getHotGender(city, region, isCu);
         return new HashMap<>();
+    }
+
+    @RequestMapping("/od")
+    public void getRegionOd(@RequestParam(name = "city") String city,
+                            @RequestParam(name = "region") String region,
+                            @RequestParam(name = "cuky") String cuky,
+                            @RequestParam(name = "od") String od) {
+        boolean isCu = cuky.equalsIgnoreCase("cu");
+
     }
 
 
